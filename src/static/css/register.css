@@ -1,0 +1,31 @@
+.form-signup {
+    max-width: 330px;
+    padding: 15px;
+}
+
+.form-signup .form-floating:focus-within {
+    z-index: 2;
+}
+
+.form-signup input[type="text"],
+.form-signup input[type="password"],
+.form-signup select {
+    margin-bottom: -1px;
+    border-radius: 0;
+}
+
+.form-signup input[type="text"]:first-of-type {
+    margin-bottom: -1px;
+    border-top-left-radius: 0.25rem;
+    border-top-right-radius: 0.25rem;
+}
+
+.form-signup select {
+    margin-bottom: 10px;
+    border-bottom-left-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}
+
+.form-signup button[type="submit"] {
+    margin-top: 10px;
+}

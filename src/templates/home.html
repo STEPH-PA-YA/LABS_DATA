@@ -1,0 +1,88 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard</h1>
+</div>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>{{ message }}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+                <h5 class="card-title">Laboratorios Activos</h5>
+                <p class="card-text display-4">5</p>
+                <i class="bi bi-building float-end" style="font-size: 3rem; opacity: 0.5;"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body">
+                <h5 class="card-title">Equipos Disponibles</h5>
+                <p class="card-text display-4">23</p>
+                <i class="bi bi-tools float-end" style="font-size: 3rem; opacity: 0.5;"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card bg-warning text-dark h-100">
+            <div class="card-body">
+                <h5 class="card-title">Próximas Reservas</h5>
+                <p class="card-text display-4">7</p>
+                <i class="bi bi-calendar-event float-end" style="font-size: 3rem; opacity: 0.5;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="mt-4 mb-3">Actividad Reciente</h2>
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Fecha</th>
+                <th>Usuario</th>
+                <th>Actividad</th>
+                <th>Laboratorio</th>
+                <th>Equipo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>2024-03-15</td>
+                <td>Juan Pérez</td>
+                <td><span class="badge bg-primary">Reserva</span></td>
+                <td>Lab A</td>
+                <td>Microscopio #3</td>
+            </tr>
+            <tr>
+                <td>2024-03-14</td>
+                <td>María García</td>
+                <td><span class="badge bg-success">Devolución</span></td>
+                <td>Lab B</td>
+                <td>Centrífuga #2</td>
+            </tr>
+            <tr>
+                <td>2024-03-13</td>
+                <td>Carlos Rodríguez</td>
+                <td><span class="badge bg-warning text-dark">Mantenimiento</span></td>
+                <td>Lab C</td>
+                <td>Espectrómetro #1</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
