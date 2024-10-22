@@ -1,0 +1,43 @@
+{% extends './dashboard_base.html' %}
+{% block title %}Editar Laboratorio{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Editar Laboratorio</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Información del Laboratorio</h5>
+                <form method="POST" action="{{ url_for('editar_laboratorio', id=laboratorio.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="id" class="form-label">ID</label>
+                        <input type="text" class="form-control" id="id" name="id" value="{{ laboratorio.id }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" value="{{ laboratorio.nombre }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ubicacion" class="form-label">Ubicación</label>
+                        <input type="text" class="form-control" id="ubicacion" name="ubicacion" value="{{ laboratorio.ubicacion }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="carrera_id">Carrera:</label>
+                        <select class="form-control" id="carrera_id" name="carrera_id" required>
+                            {% for id, nombre in carreras %}
+                                <option value="{{ id }}" {% if id|string == laboratorio.carrera_id|string %}selected{% endif %}>{{ nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

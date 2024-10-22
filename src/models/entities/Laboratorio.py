@@ -1,6 +1,6 @@
 class Laboratorio:
-    def __init__(self,codigo, nombre, ubicacion, carrera_id) -> None:
-        self.codigo = codigo
+    def __init__(self, id, nombre, ubicacion, carrera_id):
+        self.id = id
         self.nombre = nombre
         self.ubicacion = ubicacion
         self.carrera_id = carrera_id
