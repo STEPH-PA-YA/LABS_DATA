@@ -7,7 +7,8 @@ from flask_wtf.csrf import CSRFProtect
 # Models
 from models.ModelUser import ModelUser
 from models.ModelRol import ModelRol
-from models.ModelLab import ModelLaboratorio
+from models.ModelLab import ModelLaboratorio, Laboratorio
+from models.ModelCarrera import ModelCarrera
 
 app = Flask(__name__)
 
@@ -128,7 +129,49 @@ def laboratorios():
     laboratorios = ModelLaboratorio.get_laboratorios(db, user_id, user_rol)
     return render_template('dashboard/laboratorios.html', laboratorios=laboratorios)
 
+@app.route('/eliminar_laboratorio/<int:id>')
+@login_required
+def eliminar_laboratorio(id):
+    ModelLaboratorio.eliminar_laboratorio(db, id)
+    return redirect(url_for('laboratorios'))
 
+@app.route('/agregar_laboratorio', methods=['GET', 'POST'])
+@login_required
+def agregar_laboratorio():
+    if request.method == 'POST':
+        laboratorio = Laboratorio(
+            id=None,  # El id será asignado por la base de datos
+            nombre=request.form['nombre'],
+            ubicacion=request.form['ubicacion'],
+            carrera_id=request.form['carrera_id']
+        )
+        ModelLaboratorio.agregar_laboratorio(db, laboratorio)
+        return redirect(url_for('laboratorios'))
+    
+    carreras = ModelCarrera.get_carreras_for_dropdown(db)
+    return render_template('dashboard/agregar_laboratorio.html', carreras=carreras)
+
+
+@app.route('/editar_laboratorio/<int:id>', methods=['GET', 'POST'])
+@login_required
+def editar_laboratorio(id):
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        ubicacion = request.form['ubicacion']
+        carrera_id = request.form['carrera_id']
+        
+        # Imprime para debug
+        print(f"carrera_id recibido: {carrera_id}")
+        
+        laboratorio = Laboratorio(id, nombre, ubicacion, carrera_id)
+        ModelLaboratorio.editar_laboratorio(db, laboratorio)
+        flash('Laboratorio actualizado con éxito', 'success')
+        return redirect(url_for('laboratorios'))
+    
+    laboratorio = ModelLaboratorio.obtener_laboratorio(db, id)
+    carreras = ModelCarrera.get_carreras_for_dropdown(db)
+    return render_template('dashboard/editar_laboratorio.html', laboratorio=laboratorio, carreras=carreras)
+#Asignar laboratorios
 
 def status_401(error):
     return redirect(url_for('login'))

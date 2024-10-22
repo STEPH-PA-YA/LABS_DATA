@@ -6,15 +6,15 @@ class ModelLaboratorio:
         try:
             cursor = db.connection.cursor()
             if user_rol == 1:  # Asumiendo que 1 es el ID del rol de administrador
-                sql = """SELECT l.codigo, l.nombre, l.ubicacion, c.nombre as carrera_nombre
+                sql = """SELECT l.id, l.nombre, l.ubicacion, c.nombre as carrera_nombre
                          FROM Laboratorios l
                          LEFT JOIN Carreras c ON l.carrera_id = c.id"""
                 cursor.execute(sql)
             else:
-                sql = """SELECT l.codigo, l.nombre, l.ubicacion, c.nombre as carrera_nombre
+                sql = """SELECT l.id, l.nombre, l.ubicacion, c.nombre as carrera_nombre
                          FROM Laboratorios l
                          LEFT JOIN Carreras c ON l.carrera_id = c.id
-                         JOIN AsignacionesAsistente aa ON l.codigo = aa.laboratorio_codigo
+                         JOIN AsignacionesAsistente aa ON l.id = aa.laboratorio_id
                          WHERE aa.asistente_id = %s"""
                 cursor.execute(sql, (user_id,))
             
@@ -25,13 +25,35 @@ class ModelLaboratorio:
         finally:
             cursor.close()
 
-    @staticmethod
-    def agregar_laboratorio(db, laboratorio):
+    @classmethod
+    def agregar_laboratorio(cls, db, laboratorio):
         try:
             cursor = db.connection.cursor()
-            sql = """INSERT INTO Laboratorios (codigo, nombre, ubicacion, carrera_id) 
-                     VALUES (%s, %s, %s, (SELECT id FROM Carreras WHERE nombre = %s))"""
-            cursor.execute(sql, (laboratorio.codigo, laboratorio.nombre, laboratorio.ubicacion, laboratorio.carrera_nombre))
+            sql = """INSERT INTO Laboratorios (nombre, ubicacion, carrera_id) 
+                     VALUES (%s, %s, %s)"""
+            cursor.execute(sql, (laboratorio.nombre, 
+                                 laboratorio.ubicacion, laboratorio.carrera_id))
+            db.connection.commit()
+        except Exception as ex:
+            db.connection.rollback()
+            raise Exception(ex)
+        finally:
+            cursor.close()
+
+    @classmethod
+    def editar_laboratorio(cls, db, laboratorio):
+        try:
+            cursor = db.connection.cursor()
+            sql = """UPDATE Laboratorios 
+                    SET nombre = %s, ubicacion = %s, carrera_id = %s 
+                    WHERE id = %s"""
+            
+            # Asegúrate de que carrera_id no sea None
+            if laboratorio.carrera_id is None:
+                raise ValueError("carrera_id no puede ser None")
+            
+            cursor.execute(sql, (laboratorio.nombre, laboratorio.ubicacion, 
+                                laboratorio.carrera_id, laboratorio.id))
             db.connection.commit()
         except Exception as ex:
             db.connection.rollback()
@@ -40,13 +62,11 @@ class ModelLaboratorio:
             cursor.close()
 
     @staticmethod
-    def editar_laboratorio(db, laboratorio):
+    def eliminar_laboratorio(db, id):
         try:
             cursor = db.connection.cursor()
-            sql = """UPDATE Laboratorios SET nombre = %s, ubicacion = %s, 
-                     carrera_id = (SELECT id FROM Carreras WHERE nombre = %s)
-                     WHERE codigo = %s"""
-            cursor.execute(sql, (laboratorio.nombre, laboratorio.ubicacion, laboratorio.carrera_nombre, laboratorio.codigo))
+            sql = "DELETE FROM Laboratorios WHERE id = %s"
+            cursor.execute(sql, (id,))
             db.connection.commit()
         except Exception as ex:
             db.connection.rollback()
@@ -54,15 +74,28 @@ class ModelLaboratorio:
         finally:
             cursor.close()
 
-    @staticmethod
-    def eliminar_laboratorio(db, codigo):
+    @classmethod
+    def obtener_laboratorio(cls, db, id):
         try:
             cursor = db.connection.cursor()
-            sql = "DELETE FROM Laboratorios WHERE codigo = %s"
-            cursor.execute(sql, (codigo,))
-            db.connection.commit()
+            sql = """
+                SELECT id, nombre, ubicacion, carrera_id
+                FROM Laboratorios
+                WHERE id = %s
+            """
+            cursor.execute(sql, (id,))
+            result = cursor.fetchone()
+            
+            if result:
+                return Laboratorio(
+                    id=result[0],
+                    nombre=result[1],
+                    ubicacion=result[2],
+                    carrera_id=result[3]
+                )
+            return None
         except Exception as ex:
-            db.connection.rollback()
             raise Exception(ex)
         finally:
-            cursor.close()
+            if cursor:
+                cursor.close()
