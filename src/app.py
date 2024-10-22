@@ -171,7 +171,7 @@ def editar_laboratorio(id):
     laboratorio = ModelLaboratorio.obtener_laboratorio(db, id)
     carreras = ModelCarrera.get_carreras_for_dropdown(db)
     return render_template('dashboard/editar_laboratorio.html', laboratorio=laboratorio, carreras=carreras)
-
+#Asignar laboratorios
 
 def status_401(error):
     return redirect(url_for('login'))
