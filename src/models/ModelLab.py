@@ -99,3 +99,17 @@ class ModelLaboratorio:
         finally:
             if cursor:
                 cursor.close()
+
+    @classmethod
+    def get_all_labs(self, db):
+        """Obtener todos los laboratorios para el dropdown"""
+        try:
+            cursor = db.connection.cursor()
+            sql = "SELECT id, nombre FROM laboratorios"
+            cursor.execute(sql)
+            laboratorios = cursor.fetchall()
+            return laboratorios
+        except Exception as ex:
+            raise Exception(ex)
+        finally:
+            cursor.close()

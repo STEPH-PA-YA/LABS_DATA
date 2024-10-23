@@ -119,3 +119,19 @@ class ModelUser():
             return False, str(ex)
         finally:
             cursor.close()
+
+    @classmethod
+    def get_all_asistentes(self, db):
+        """Obtener todos los asistentes para el dropdown"""
+        try:
+            cursor = db.connection.cursor()
+            sql = """SELECT id, fullname, username 
+                    FROM asistentes 
+                    WHERE rol_id = 2"""  # Asumiendo que rol_id 2 es para asistentes
+            cursor.execute(sql)
+            asistentes = cursor.fetchall()
+            return asistentes
+        except Exception as ex:
+            raise Exception(ex)
+        finally:
+            cursor.close()

@@ -9,6 +9,7 @@ from models.ModelUser import ModelUser
 from models.ModelRol import ModelRol
 from models.ModelLab import ModelLaboratorio, Laboratorio
 from models.ModelCarrera import ModelCarrera
+from models.ModelAsignacion import ModelAsignacion
 
 app = Flask(__name__)
 
@@ -172,6 +173,80 @@ def editar_laboratorio(id):
     carreras = ModelCarrera.get_carreras_for_dropdown(db)
     return render_template('dashboard/editar_laboratorio.html', laboratorio=laboratorio, carreras=carreras)
 #Asignar laboratorios
+
+@app.route('/asignaciones')
+@login_required
+def asignaciones():
+    if current_user.rol_id != 1:  # Asumiendo que 1 es el rol de administrador
+        flash("No tiene permisos para acceder a esta página")
+        return redirect(url_for('home'))
+    
+    asignaciones = ModelAsignacion.get_asignaciones(db)
+    return render_template('dashboard/asignaciones.html', asignaciones=asignaciones)
+
+@app.route('/agregar_asignacion', methods=['GET', 'POST'])
+@login_required
+def agregar_asignacion():
+    if current_user.rol_id != 1:
+        flash("No tiene permisos para acceder a esta página")
+        return redirect(url_for('home'))
+    
+    if request.method == 'POST':
+        asistente_id = request.form['asistente_id']
+        laboratorio_id = request.form['laboratorio_id']
+        
+        try:
+            ModelAsignacion.agregar_asignacion(db, asistente_id, laboratorio_id)
+            flash("Asignación agregada exitosamente")
+            return redirect(url_for('asignaciones'))
+        except Exception as ex:
+            flash(str(ex))
+    
+    asistentes = ModelUser.get_all_asistentes(db)
+    laboratorios = ModelLaboratorio.get_all_labs(db)
+    return render_template('dashboard/agregar_asignacion.html', asistentes=asistentes, laboratorios=laboratorios)
+
+@app.route('/eliminar_asignacion/<int:id>')
+@login_required
+def eliminar_asignacion(id):
+    if current_user.rol_id != 1:
+        flash("No tiene permisos para acceder a esta página")
+        return redirect(url_for('home'))
+    
+    try:
+        ModelAsignacion.eliminar_asignacion(db, id)
+        flash("Asignación eliminada exitosamente")
+        return redirect(url_for('asignaciones'))
+    except Exception as ex:
+        flash(str(ex))
+        return redirect(url_for('asignaciones'))
+
+@app.route('/editar_asignacion/<int:id>', methods=['GET', 'POST'])
+@login_required
+def editar_asignacion(id):
+    if current_user.rol_id != 1:
+        flash("No tiene permisos para acceder a esta página")
+        return redirect(url_for('home'))
+    
+    if request.method == 'POST':
+        asistente_id = request.form['asistente_id']
+        laboratorio_id = request.form['laboratorio_id']
+        
+        try:
+            ModelAsignacion.editar_asignacion(db, id, asistente_id, laboratorio_id)
+            flash("Asignación actualizada exitosamente")
+            return redirect(url_for('asignaciones'))
+        except Exception as ex:
+            flash(str(ex))
+    
+    # Obtener la asignación actual
+    asignacion = ModelAsignacion.obtener_asignacion(db, id)
+    # Obtener las listas para los dropdowns
+    asistentes = ModelUser.get_all_asistentes(db)
+    laboratorios = ModelLaboratorio.get_all_labs(db)
+    
+    return render_template('dashboard/editar_asignacion.html', asignacion=asignacion, asistentes=asistentes, laboratorios=laboratorios)
+
 
 def status_401(error):
     return redirect(url_for('login'))

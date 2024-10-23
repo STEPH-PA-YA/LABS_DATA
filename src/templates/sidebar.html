@@ -17,7 +17,7 @@
             </li>
             {% if current_user.rol_id == 1 %}
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ url_for('asignaciones') }}">
                     <i class="bi bi-building me-2"></i>Asignar labortorios
                 </a>
             </li>
