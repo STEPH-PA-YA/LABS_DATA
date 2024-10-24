@@ -1,0 +1,60 @@
+{% extends './dashboard_base.html' %}
+{% block title %}Equipos{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h2>Equipos</h2>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('agregar_equipo') }}" class="btn btn-sm btn-outline-secondary">
+            <span data-feather="plus"></span>
+            Agregar Equipo
+        </a>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="table-responsive">
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Serie</th>
+                <th>Laboratorio</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for equipo in equipos %}
+            <tr>
+                <td>{{ equipo.codigo }}</td>
+                <td>{{ equipo.nombre }}</td>
+                <td>{{ equipo.marca }}</td>
+                <td>{{ equipo.modelo }}</td>
+                <td>{{ equipo.serie }}</td>
+                <td>{{ equipo.laboratorio_nombre }}</td>
+                <td>
+                    <a href="{{ url_for('editar_equipo', id=equipo.id) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                    <a href="{{ url_for('eliminar_equipo', id=equipo.id) }}" 
+                       class="btn btn-sm btn-outline-danger"
+                       onclick="return confirm('¿Estás seguro de que quieres eliminar este equipo?');">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

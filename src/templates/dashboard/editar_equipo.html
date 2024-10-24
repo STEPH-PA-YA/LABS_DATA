@@ -1,0 +1,67 @@
+{# templates/dashboard/editar_equipo.html #}
+{% extends './dashboard_base.html' %}
+{% block title %}Editar Equipo{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h2>Editar Equipo</h2>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Información del Equipo</h5>
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <div class="mb-3">
+                        <label for="codigo" class="form-label">Código</label>
+                        <input type="text" class="form-control" id="codigo" name="codigo" 
+                               value="{{ equipo.codigo }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" 
+                               value="{{ equipo.nombre }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="marca" class="form-label">Marca</label>
+                        <input type="text" class="form-control" id="marca" name="marca" 
+                               value="{{ equipo.marca }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="modelo" class="form-label">Modelo</label>
+                        <input type="text" class="form-control" id="modelo" name="modelo" 
+                               value="{{ equipo.modelo }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="serie" class="form-label">Serie</label>
+                        <input type="text" class="form-control" id="serie" name="serie" 
+                               value="{{ equipo.serie }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="laboratorio_id" class="form-label">Laboratorio</label>
+                        <select class="form-select" id="laboratorio_id" name="laboratorio_id" required>
+                            <option value="">Seleccione un laboratorio</option>
+                            {% for id, nombre in laboratorios %}
+                                <option value="{{ id }}" {% if equipo.laboratorio_id == id %}selected{% endif %}>
+                                    {{ nombre }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Actualizar Equipo</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -10,6 +10,7 @@ from models.ModelRol import ModelRol
 from models.ModelLab import ModelLaboratorio, Laboratorio
 from models.ModelCarrera import ModelCarrera
 from models.ModelAsignacion import ModelAsignacion
+from models.ModelEquipo import ModelEquipo, Equipo
 
 app = Flask(__name__)
 
@@ -247,7 +248,80 @@ def editar_asignacion(id):
     
     return render_template('dashboard/editar_asignacion.html', asignacion=asignacion, asistentes=asistentes, laboratorios=laboratorios)
 
+#Equipos
+@app.route('/equipos')
+@login_required
+def equipos():
+    user_id = current_user.id
+    user_rol = current_user.rol_id
+    equipos = ModelEquipo.get_equipos(db, user_id, user_rol)
+    return render_template('dashboard/equipos.html', equipos=equipos)
 
+@app.route('/agregar_equipo', methods=['GET', 'POST'])
+@login_required
+def agregar_equipo():
+    if request.method == 'POST':
+        equipo = Equipo(
+            id=None,
+            codigo=request.form['codigo'],
+            nombre=request.form['nombre'],
+            marca=request.form['marca'],
+            modelo=request.form['modelo'],
+            serie=request.form['serie'],
+            laboratorio_id=request.form['laboratorio_id']
+        )
+        
+        try:
+            ModelEquipo.agregar_equipo(db, equipo, current_user.id, current_user.rol_id)
+            flash("Equipo agregado exitosamente", "success")
+            return redirect(url_for('equipos'))
+        except Exception as ex:
+            flash(str(ex), "danger")
+    
+    # Obtener laboratorios disponibles según el rol del usuario
+    laboratorios = ModelEquipo.get_laboratorios_disponibles(db, current_user.id, current_user.rol_id)
+    return render_template('dashboard/agregar_equipo.html', laboratorios=laboratorios)
+
+@app.route('/editar_equipo/<int:id>', methods=['GET', 'POST'])
+@login_required
+def editar_equipo(id):
+    if request.method == 'POST':
+        equipo = Equipo(
+            id=id,
+            codigo=request.form['codigo'],
+            nombre=request.form['nombre'],
+            marca=request.form['marca'],
+            modelo=request.form['modelo'],
+            serie=request.form['serie'],
+            laboratorio_id=request.form['laboratorio_id']
+        )
+        
+        try:
+            ModelEquipo.editar_equipo(db, equipo, current_user.id, current_user.rol_id)
+            flash("Equipo actualizado exitosamente", "success")
+            return redirect(url_for('equipos'))
+        except Exception as ex:
+            flash(str(ex), "danger")
+    
+    equipo = ModelEquipo.obtener_equipo(db, id, current_user.id, current_user.rol_id)
+    if not equipo:
+        flash("Equipo no encontrado", "danger")
+        return redirect(url_for('equipos'))
+    
+    laboratorios = ModelEquipo.get_laboratorios_disponibles(db, current_user.id, current_user.rol_id)
+    return render_template('dashboard/editar_equipo.html', equipo=equipo, laboratorios=laboratorios)
+
+@app.route('/eliminar_equipo/<int:id>')
+@login_required
+def eliminar_equipo(id):
+    try:
+        ModelEquipo.eliminar_equipo(db, id, current_user.id, current_user.rol_id)
+        flash("Equipo eliminado exitosamente", "success")
+    except Exception as ex:
+        flash(str(ex), "danger")
+    return redirect(url_for('equipos'))
+
+#Manejo de errores
 def status_401(error):
     return redirect(url_for('login'))
 
