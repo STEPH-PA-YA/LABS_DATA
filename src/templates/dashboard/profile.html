@@ -1,10 +1,8 @@
 {% extends './dashboard_base.html' %}
 {% block title %}Perfil{% endblock %}
+{% block breadcrumb %}Perfil{% endblock %}
+{% block page_title %}Perfil de Usuario{% endblock %}
 {% block content %}
-
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Perfil de Usuario</h1>
-</div>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -36,7 +34,7 @@
                         <label for="password" class="form-label">Nueva Contraseña (opcional)</label>
                         <input type="password" class="form-control" id="password" name="password" placeholder="Dejar en blanco para no cambiar">
                     </div>
-                    <button type="submit" class="btn btn-primary">Actualizar Perfil</button>
+                    <button type="submit" class="btn btn-utp-red">Actualizar Perfil</button>
                 </form>
             </div>
         </div>

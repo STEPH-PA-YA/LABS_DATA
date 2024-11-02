@@ -1,39 +1,43 @@
 {% extends './dashboard_base.html' %}
 {% block title %}Agregar Asignación{% endblock %}
+{% block breadcrumb %}Agregar Asignación{% endblock %}
+{% block page_title %}Agregar Asignación{% endblock %}
 {% block content %}
-
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Agregar Asignación</h1>
-</div>
 
 <div class="row">
     <div class="col-md-6">
-        <form method="POST" action="{{ url_for('agregar_asignacion') }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            
-            <div class="mb-3">
-                <label for="asistente_id" class="form-label">Asistente</label>
-                <select class="form-control" id="asistente_id" name="asistente_id" required>
-                    <option value="">Seleccione un asistente</option>
-                    {% for asistente in asistentes %}
-                    <option value="{{ asistente[0] }}">{{ asistente[1] }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('agregar_asignacion') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <div class="mb-3">
+                        <label for="asistente_id" class="form-label">Asistente</label>
+                        <select class="form-select" id="asistente_id" name="asistente_id" required>
+                            <option value="">Seleccione un asistente</option>
+                            {% for asistente in asistentes %}
+                            <option value="{{ asistente[0] }}">{{ asistente[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-            <div class="mb-3">
-                <label for="laboratorio_id" class="form-label">Laboratorio</label>
-                <select class="form-control" id="laboratorio_id" name="laboratorio_id" required>
-                    <option value="">Seleccione un laboratorio</option>
-                    {% for laboratorio in laboratorios %}
-                    <option value="{{ laboratorio[0] }}">{{ laboratorio[1] }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+                    <div class="mb-3">
+                        <label for="laboratorio_id" class="form-label">Laboratorio</label>
+                        <select class="form-select" id="laboratorio_id" name="laboratorio_id" required>
+                            <option value="">Seleccione un laboratorio</option>
+                            {% for laboratorio in laboratorios %}
+                            <option value="{{ laboratorio[0] }}">{{ laboratorio[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-            <button type="submit" class="btn btn-sm btn-outline-primary">Agregar</button>
-            <a href="{{ url_for('asignaciones') }}" class="btn btn-sm btn-outline-secondary">Cancelar</a>
-        </form>
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-utp-red">Agregar</button>
+                        <a href="{{ url_for('asignaciones') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 

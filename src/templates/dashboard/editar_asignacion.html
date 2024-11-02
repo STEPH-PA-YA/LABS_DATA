@@ -1,40 +1,43 @@
 {% extends './dashboard_base.html' %}
 {% block title %}Editar Asignación{% endblock %}
+{% block breadcrumb %}Editar Asignación{% endblock %}
+{% block page_title %}Editar Asignación{% endblock %}
 {% block content %}
-
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Editar Asignación</h1>
-</div>
 
 <div class="row">
     <div class="col-md-6">
-        <form method="POST">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            
-            <div class="mb-3">
-                <label for="asistente_id" class="form-label">Asistente</label>
-                <select class="form-control" id="asistente_id" name="asistente_id" required>
-                    {% for asistente in asistentes %}
-                    <option value="{{ asistente[0] }}" {% if asistente[0] == asignacion[1] %}selected{% endif %}>
-                        {{ asistente[1] }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <div class="mb-3">
+                        <label for="asistente_id" class="form-label">Asistente</label>
+                        <select class="form-select" id="asistente_id" name="asistente_id" required>
+                            {% for asistente in asistentes %}
+                            <option value="{{ asistente[0] }}" {% if asistente[0] == asignacion[1] %}selected{% endif %}>
+                                {{ asistente[1] }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-            <div class="mb-3">
-                <label for="laboratorio_id" class="form-label">Laboratorio</label>
-                <select class="form-control" id="laboratorio_id" name="laboratorio_id" required>
-                    {% for laboratorio in laboratorios %}
-                    <option value="{{ laboratorio[0] }}" {% if laboratorio[0] == asignacion[2] %}selected{% endif %}>
-                        {{ laboratorio[1] }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
+                    <div class="mb-3">
+                        <label for="laboratorio_id" class="form-label">Laboratorio</label>
+                        <select class="form-select" id="laboratorio_id" name="laboratorio_id" required>
+                            {% for laboratorio in laboratorios %}
+                            <option value="{{ laboratorio[0] }}" {% if laboratorio[0] == asignacion[2] %}selected{% endif %}>
+                                {{ laboratorio[1] }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-            <button type="submit" class="btn btn-sm btn-outline-primary">Guardar</button>
-        </form>
+                    <button type="submit" class="btn btn-utp-red">Guardar</button>
+                    <a href="{{ url_for('asignaciones') }}" class="btn btn-outline-secondary">Cancelar</a>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 
