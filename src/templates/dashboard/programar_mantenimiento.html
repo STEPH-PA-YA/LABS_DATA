@@ -1,0 +1,69 @@
+{% extends './dashboard_base.html' %}
+{% block title %}Programar Mantenimiento{% endblock %}
+{% block breadcrumb %}Programar Mantenimiento{% endblock %}
+{% block page_title %}Programar Mantenimiento{% endblock %}
+{% block content %}
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Información del Mantenimiento</h5>
+                <form action="{{ url_for('programar_mantenimiento') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <div class="mb-3">
+                        <label for="equipo_id" class="form-label">Equipo</label>
+                        <select class="form-select" id="equipo_id" name="equipo_id" required>
+                            <option value="">Seleccione un equipo</option>
+                            {% for equipo in equipos %}
+                                <option value="{{ equipo.id }}">{{ equipo.nombre }} ({{ equipo.codigo }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="tipo_mantenimiento_id" class="form-label">Tipo de Mantenimiento</label>
+                        <select name="tipo_mantenimiento_id" class="form-control" required>
+                            <option value="">Seleccione un tipo de mantenimiento</option>
+                            {% for id, nombre in tipos_mantenimiento %}
+                                <option value="{{ id }}">{{ nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="anio" class="form-label">Año</label>
+                        <input type="number" class="form-control" id="anio" name="anio" min="2024" max="2100" value="2024" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="mes" class="form-label">Mes</label>
+                        <select class="form-select" id="mes" name="mes" required>
+                            <option value="">Seleccione un mes</option>
+                            <option value="1">Enero</option>
+                            <option value="2">Febrero</option>
+                            <option value="3">Marzo</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Mayo</option>
+                            <option value="6">Junio</option>
+                            <option value="7">Julio</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-utp-red">Programar Mantenimiento</button>
+                        <a href="{{ url_for('mantenimientos') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

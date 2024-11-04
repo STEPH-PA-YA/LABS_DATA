@@ -28,7 +28,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {% if request.endpoint == 'cronograma' %}active{% endif %}" href="#">
+                <a class="nav-link {% if request.endpoint == 'cronograma' %}active{% endif %}" href="{{ url_for('mantenimientos') }}">
                     <i class="bi bi-calendar-event me-2"></i>Cronograma
                 </a>
             </li>

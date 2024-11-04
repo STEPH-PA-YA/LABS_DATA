@@ -11,6 +11,7 @@ from models.ModelLab import ModelLaboratorio, Laboratorio
 from models.ModelCarrera import ModelCarrera
 from models.ModelAsignacion import ModelAsignacion
 from models.ModelEquipo import ModelEquipo, Equipo
+from models.ModelMantenimiento import ModelMantenimiento
 
 app = Flask(__name__)
 
@@ -321,7 +322,51 @@ def eliminar_equipo(id):
         flash(str(ex), "danger")
     return redirect(url_for('equipos'))
 
+#Mantenimientos
+
+@app.route('/mantenimientos')
+@login_required
+def mantenimientos():
+    try:
+        programaciones = ModelMantenimiento.get_programacion_mantenimiento(db, current_user.id, current_user.rol_id)
+        return render_template('dashboard/mantenimiento.html', programaciones=programaciones)
+    except Exception as ex:
+        flash(str(ex), "danger")
+        return redirect(url_for('home'))
+
+@app.route('/programar_mantenimiento', methods=['GET', 'POST'])
+@login_required
+def programar_mantenimiento():
+    # Verificar si el usuario es administrador
+    if current_user.rol_id != 1:  # 1 es el rol de administrador
+        flash("No tienes permisos para acceder a esta página", "danger")
+        return redirect(url_for('mantenimientos'))
+        
+    if request.method == 'POST':
+        try:
+            equipo_id = request.form['equipo_id']
+            tipo_mantenimiento_id = request.form['tipo_mantenimiento_id']
+            anio = request.form['anio']
+            mes = request.form['mes']
+            
+            ModelMantenimiento.programar_mantenimiento(
+                db, equipo_id, tipo_mantenimiento_id, anio, mes
+            )
+            flash("Mantenimiento programado exitosamente", "success")
+            return redirect(url_for('mantenimientos'))
+        except Exception as ex:
+            flash(str(ex), "danger")
+    
+    # Obtener datos para los dropdowns
+    tipos_mantenimiento = ModelMantenimiento.get_tipos_mantenimiento(db)
+    equipos = ModelEquipo.get_equipos(db, current_user.id, current_user.rol_id)
+    
+    return render_template('dashboard/programar_mantenimiento.html',
+                         tipos_mantenimiento=tipos_mantenimiento,
+                         equipos=equipos)
+
 #Manejo de errores
+
 def status_401(error):
     return redirect(url_for('login'))
 

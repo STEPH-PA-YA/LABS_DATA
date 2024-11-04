@@ -7,7 +7,7 @@ class DevelopmentConfig(Config):
     MYSQL_HOST='localhost'
     MYSQL_USER='root'
     MYSQL_PASSWORD=''
-    MYSQL_DB='db_utp'
+    MYSQL_DB='bd_utpv2'
 
 
 config={
