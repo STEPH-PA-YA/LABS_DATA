@@ -2,38 +2,51 @@
 {% block title %}Laboratorios{% endblock %}
 {% block breadcrumb %}Laboratorios{% endblock %}
 {% block page_title %}Laboratorios{% endblock %}
-{% block content %}
 
+{% block content %}
 {% if current_user.rol_id == 1 %}
 <div class="mb-3">
-    <a href="{{ url_for('agregar_laboratorio') }}" class="btn btn-utp-red">
-        <i class="bi bi-plus-circle me-2"></i>Agregar Laboratorio
-    </a>
+    <a href="{{ url_for('agregar_laboratorio') }}" class="btn btn-utp-red">Agregar Laboratorio</a>
 </div>
 {% endif %}
 
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         {% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                <strong>{{ message }}</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            <strong>{{ message }}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         {% endfor %}
     {% endif %}
 {% endwith %}
 
+<!-- Agregamos el buscador -->
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar laboratorio...">
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-secondary" onclick="clearSearch()">
+                    <i class="bi bi-x-circle me-2"></i>Limpiar búsqueda
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card">
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
+            <table class="table table-striped" id="laboratoriosTable">
+                <thead>
                     <tr>
                         <th>ID</th>
                         <th>Nombre</th>
                         <th>Ubicación</th>
                         <th>Carrera</th>
-                        
                         {% if current_user.rol_id == 1 %}
                         <th>Acciones</th>
                         {% endif %}
@@ -48,12 +61,8 @@
                         <td>{{ laboratorio.carrera_id }}</td>
                         {% if current_user.rol_id == 1 %}
                         <td>
-                            <a href="{{ url_for('editar_laboratorio', id=laboratorio.id) }}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-pencil me-1"></i>Editar
-                            </a>
-                            <a href="{{ url_for('eliminar_laboratorio', id=laboratorio.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar este laboratorio?');">
-                                <i class="bi bi-trash me-1"></i>Eliminar
-                            </a>
+                            <a href="{{ url_for('editar_laboratorio', id=laboratorio.id) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                            <a href="{{ url_for('eliminar_laboratorio', id=laboratorio.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar este laboratorio?');">Eliminar</a>
                         </td>
                         {% endif %}
                     </tr>
@@ -64,4 +73,37 @@
     </div>
 </div>
 
+<script>
+function filterTable() {
+    var input, filter, table, tr, td, i, txtValue;
+    input = document.getElementById("searchInput");
+    filter = input.value.toUpperCase();
+    table = document.getElementById("laboratoriosTable");
+    tr = table.getElementsByTagName("tr");
+
+    for (i = 1; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td");
+        var showRow = false;
+        
+        // Buscar en todas las columnas excepto la última (acciones)
+        for (var j = 0; j < td.length - 1; j++) {
+            if (td[j]) {
+                txtValue = td[j].textContent || td[j].innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    showRow = true;
+                    break;
+                }
+            }
+        }
+        tr[i].style.display = showRow ? "" : "none";
+    }
+}
+
+function clearSearch() {
+    document.getElementById("searchInput").value = "";
+    filterTable();
+}
+
+document.getElementById("searchInput").addEventListener("keyup", filterTable);
+</script>
 {% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}Registrar Mantenimiento{% endblock %}
+{% block breadcrumb %}Registrar Mantenimiento{% endblock %}
+{% block page_title %}Registrar Mantenimiento{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('registrar_mantenimiento', programacion_id=programacion.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="equipo_nombre" class="form-label">Equipo</label>
+                    <input type="text" class="form-control" id="equipo_nombre" value="{{ programacion.equipo_nombre }}" disabled>
+                </div>
+                <div class="col-md-6">
+                    <label for="equipo_codigo" class="form-label">Código</label>
+                    <input type="text" class="form-control" id="equipo_codigo" value="{{ programacion.equipo_codigo }}" disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="equipo_marca" class="form-label">Marca</label>
+                    <input type="text" class="form-control" id="equipo_marca" value="{{ programacion.equipo_marca }}" disabled>
+                </div>
+                <div class="col-md-6">
+                    <label for="equipo_serie" class="form-label">Serie</label>
+                    <input type="text" class="form-control" id="equipo_serie" value="{{ programacion.equipo_serie }}" disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="equipo_modelo" class="form-label">Modelo</label>
+                    <input type="text" class="form-control" id="equipo_modelo" value="{{ programacion.equipo_modelo }}" disabled>
+                </div>
+                <div class="col-md-6">
+                    <label for="laboratorio_nombre" class="form-label">Laboratorio</label>
+                    <input type="text" class="form-control" id="laboratorio_nombre" value="{{ programacion.laboratorio_nombre }}" disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="carrera_nombre" class="form-label">Carrera</label>
+                    <input type="text" class="form-control" id="carrera_nombre" value="{{ programacion.carrera_nombre }}" disabled>
+                </div>
+                <div class="col-md-6">
+                    <label for="tipo_mantenimiento" class="form-label">Tipo de Mantenimiento</label>
+                    <input type="text" class="form-control" id="tipo_mantenimiento" value="{{ programacion.tipo_mantenimiento }}" disabled>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="fecha_realizado" class="form-label">Fecha de Ejecución</label>
+                    <input type="date" class="form-control" id="fecha_realizado" name="fecha_realizado" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="realizado_por" class="form-label">Realizado Por</label>
+                    <select class="form-select" id="realizado_por" name="realizado_por" required>
+                        <option value="">Seleccione un asistente</option>
+                        {% for asistente_id, asistente_nombre in asistentes %}
+                        <option value="{{ asistente_id }}">{{ asistente_nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-12">
+                  <label for="observaciones">Observaciones:</label>
+                  <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
+                </div>
+              </div>       
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-utp-red">Registrar Mantenimiento</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

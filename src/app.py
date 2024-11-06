@@ -3,6 +3,8 @@ from config import config
 from flask_mysqldb import MySQL
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_wtf.csrf import CSRFProtect
+from flask import send_file
+from utils import generate_maintenance_report
 
 # Models
 from models.ModelUser import ModelUser
@@ -364,6 +366,65 @@ def programar_mantenimiento():
     return render_template('dashboard/programar_mantenimiento.html',
                          tipos_mantenimiento=tipos_mantenimiento,
                          equipos=equipos)
+
+
+@app.route('/eliminar_mantenimiento/<int:programacion_id>')
+@login_required
+def eliminar_mantenimiento(programacion_id):
+    try:
+        ModelMantenimiento.eliminar_programacion(db, programacion_id, current_user.id, current_user.rol_id)
+        flash("Programación de mantenimiento eliminada", "success")
+    except Exception as ex:
+        flash(str(ex), "danger")
+    return redirect(url_for('mantenimientos'))
+
+#### Agregar nueva función
+
+@app.route('/registrar_mantenimiento/<int:programacion_id>', methods=['GET', 'POST'])
+@login_required
+def registrar_mantenimiento(programacion_id):
+    if request.method == 'POST':
+        try:
+            fecha_realizado = request.form['fecha_realizado']
+            realizado_por = request.form['realizado_por']
+            observaciones = request.form['observaciones']
+
+            # Actualizar el registro de mantenimiento
+            ModelMantenimiento.registrar_mantenimiento(db, programacion_id, fecha_realizado, realizado_por, observaciones, current_user.id)
+            flash("Mantenimiento registrado exitosamente", "success")
+            return redirect(url_for('mantenimientos'))
+        except Exception as ex:
+            flash(str(ex), "danger")
+    
+    # Obtener los datos de la programación de mantenimiento
+    programacion = ModelMantenimiento.get_programacion_by_id(db, programacion_id, current_user.id, current_user.rol_id)
+    
+    if not programacion:
+        flash("No se encontró la programación de mantenimiento", "danger")
+        return redirect(url_for('mantenimientos'))
+    
+    # Obtener los asistentes asignados al laboratorio del equipo
+    asistentes = ModelMantenimiento.get_asistentes_laboratorio(db, programacion['laboratorio_id'])
+    
+    return render_template('dashboard/registrar_mantenimiento.html', programacion=programacion, asistentes=asistentes)
+
+
+@app.route('/descargar_reporte_mantenimiento/<int:programacion_id>', methods=['GET'])
+@login_required
+def descargar_reporte_mantenimiento(programacion_id):
+    try:
+        # Obtener los detalles de la programación de mantenimiento
+        programacion = ModelMantenimiento.get_programacion_details(db, programacion_id, current_user.id, current_user.rol_id)
+
+        # Generar el PDF
+        pdf_buffer = generate_maintenance_report(programacion)
+        return send_file(pdf_buffer, as_attachment=True, download_name=f'reporte_mantenimiento_{programacion_id}.pdf')
+
+    except Exception as ex:
+        flash(str(ex), "danger")
+        return redirect(url_for('mantenimientos'))
+
+
 
 #Manejo de errores
 

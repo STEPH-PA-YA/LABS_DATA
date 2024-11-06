@@ -1,6 +1,6 @@
 -- Crear la base de datos
-CREATE DATABASE IF NOT EXISTS BD_UTP;
-USE BD_UTP;
+CREATE DATABASE IF NOT EXISTS bd_utpv2;
+USE bd_utpv2;
 
 -- Tabla de Carreras
 CREATE TABLE `Carreras` (
@@ -97,6 +97,7 @@ CREATE TABLE `RegistroMantenimiento` (
   `estado` ENUM('PROGRAMADO', 'REALIZADO') DEFAULT 'PROGRAMADO',
   `fecha_realizado` DATE,
   `realizado_por` INT,
+  `observaciones` TEXT COMMENT 'Observaciones y detalles del mantenimiento realizado',
   FOREIGN KEY (`programacion_id`) REFERENCES `ProgramacionMantenimiento` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`realizado_por`) REFERENCES `Asistentes` (`id`) ON DELETE SET NULL
 );

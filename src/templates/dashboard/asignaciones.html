@@ -25,8 +25,18 @@
 
 <div class="card">
     <div class="card-body">
+        <!-- Añadir elementos de búsqueda y filtro -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar por asistente o laboratorio...">
+            </div>
+            <div class="col-md-4">
+                <button onclick="clearSearch()" class="btn btn-secondary">Limpiar búsqueda</button>
+            </div>
+        </div>
+
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover" id="asignacionesTable">
                 <thead class="table-light">
                     <tr>
                         <th>ID</th>
@@ -60,5 +70,38 @@
         </div>
     </div>
 </div>
+
+<script>
+function filterTable() {
+    var input, filter, table, tr, td, i, txtValue;
+    input = document.getElementById("searchInput");
+    filter = input.value.toUpperCase();
+    table = document.getElementById("asignacionesTable");
+    tr = table.getElementsByTagName("tr");
+
+    for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td");
+        for (var j = 0; j < td.length; j++) {
+            if (td[j]) {
+                txtValue = td[j].textContent || td[j].innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                    break;
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+}
+
+function clearSearch() {
+    document.getElementById("searchInput").value = "";
+    filterTable();
+}
+
+// Añadir evento de escucha para la búsqueda en tiempo real
+document.getElementById("searchInput").addEventListener("keyup", filterTable);
+</script>
 
 {% endblock %}

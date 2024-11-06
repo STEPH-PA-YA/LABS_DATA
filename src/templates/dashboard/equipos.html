@@ -10,6 +10,22 @@
     </a>
 </div>
 
+<!-- Agregamos el buscador -->
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar equipo...">
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-secondary" onclick="clearSearch()">
+                    <i class="bi bi-x-circle me-2"></i>Limpiar búsqueda
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         {% for category, message in messages %}
@@ -24,7 +40,7 @@
 <div class="card">
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover" id="equiposTable">
                 <thead class="table-light">
                     <tr>
                         <th>Código</th>
@@ -62,5 +78,39 @@
         </div>
     </div>
 </div>
+
+<script>
+function filterTable() {
+    var input, filter, table, tr, td, i, txtValue;
+    input = document.getElementById("searchInput");
+    filter = input.value.toUpperCase();
+    table = document.getElementById("equiposTable");
+    tr = table.getElementsByTagName("tr");
+
+    for (i = 1; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td");
+        var showRow = false;
+        
+        // Buscar en todas las columnas excepto la última (acciones)
+        for (var j = 0; j < td.length - 1; j++) {
+            if (td[j]) {
+                txtValue = td[j].textContent || td[j].innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    showRow = true;
+                    break;
+                }
+            }
+        }
+        tr[i].style.display = showRow ? "" : "none";
+    }
+}
+
+function clearSearch() {
+    document.getElementById("searchInput").value = "";
+    filterTable();
+}
+
+document.getElementById("searchInput").addEventListener("keyup", filterTable);
+</script>
 
 {% endblock %}

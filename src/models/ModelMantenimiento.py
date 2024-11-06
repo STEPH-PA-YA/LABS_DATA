@@ -1,4 +1,7 @@
 from datetime import datetime
+import io 
+from flask import make_response
+
 
 class ModelMantenimiento:
     @staticmethod
@@ -110,27 +113,6 @@ class ModelMantenimiento:
         finally:
             cursor.close()
 
-    @staticmethod
-    def registrar_mantenimiento_realizado(db, programacion_id, user_id):
-        """Registrar un mantenimiento como realizado"""
-        try:
-            cursor = db.connection.cursor()
-            
-            sql = """
-                UPDATE RegistroMantenimiento 
-                SET estado = 'REALIZADO',
-                    fecha_realizado = CURRENT_DATE,
-                    realizado_por = %s
-                WHERE programacion_id = %s
-            """
-            cursor.execute(sql, (user_id, programacion_id))
-            db.connection.commit()
-            return True
-        except Exception as ex:
-            db.connection.rollback()
-            raise Exception(ex)
-        finally:
-            cursor.close()
 
     @staticmethod
     def eliminar_programacion(db, programacion_id, user_id, user_rol):
@@ -160,6 +142,198 @@ class ModelMantenimiento:
             return True
         except Exception as ex:
             db.connection.rollback()
+            raise Exception(ex)
+        finally:
+            cursor.close()
+
+#### Nuevas funciones
+
+    @staticmethod
+    def get_programacion_by_id(db, programacion_id, user_id, user_rol):
+        """Obtener los detalles de una programación de mantenimiento"""
+        try:
+            cursor = db.connection.cursor()
+            
+            if user_rol == 1:  # Administrador
+                sql = """
+                    SELECT 
+                        pm.id,
+                        e.id AS equipo_id,
+                        e.nombre AS equipo_nombre,
+                        e.codigo AS equipo_codigo,
+                        e.marca AS equipo_marca, 
+                        e.serie AS equipo_serie,
+                        e.modelo AS equipo_modelo,
+                        l.id AS laboratorio_id,
+                        l.nombre AS laboratorio_nombre,
+                        c.nombre AS carrera_nombre,
+                        tm.nombre AS tipo_mantenimiento,
+                        pm.anio,
+                        pm.mes,
+                        COALESCE(rm.estado, 'PROGRAMADO') as estado,
+                        rm.fecha_realizado,
+                        COALESCE(rm.observaciones, '') as observaciones
+                    FROM ProgramacionMantenimiento pm
+                    JOIN Equipos e ON pm.equipo_id = e.id
+                    JOIN Laboratorios l ON e.laboratorio_id = l.id
+                    JOIN Carreras c ON l.carrera_id = c.id
+                    JOIN TiposMantenimiento tm ON pm.tipo_mantenimiento_id = tm.id
+                    LEFT JOIN RegistroMantenimiento rm ON pm.id = rm.programacion_id
+                    WHERE pm.id = %s
+                """
+                cursor.execute(sql, (programacion_id,))
+            else:  # Asistente
+                sql = """
+                    SELECT 
+                        pm.id,
+                        e.id AS equipo_id,
+                        e.nombre AS equipo_nombre,
+                        e.codigo AS equipo_codigo,
+                        e.marca AS equipo_marca,
+                        e.serie AS equipo_serie,
+                        e.modelo AS equipo_modelo,
+                        l.id AS laboratorio_id,
+                        l.nombre AS laboratorio_nombre,
+                        c.nombre AS carrera_nombre,
+                        tm.nombre AS tipo_mantenimiento,
+                        pm.anio,
+                        pm.mes,
+                        rm.estado,
+                        rm.fecha_realizado,
+                        rm.observaciones
+                    FROM ProgramacionMantenimiento pm
+                    JOIN Equipos e ON pm.equipo_id = e.id
+                    JOIN Laboratorios l ON e.laboratorio_id = l.id
+                    JOIN Carreras c ON l.carrera_id = c.id
+                    JOIN TiposMantenimiento tm ON pm.tipo_mantenimiento_id = tm.id
+                    LEFT JOIN RegistroMantenimiento rm ON pm.id = rm.programacion_id
+                    JOIN AsignacionesAsistente aa ON l.id = aa.laboratorio_id
+                    WHERE pm.id = %s AND aa.asistente_id = %s
+                """
+                cursor.execute(sql, (programacion_id, user_id))
+            
+            # Obtener los nombres de las columnas
+            columns = [desc[0] for desc in cursor.description]
+            # Convertir los resultados en un diccionario
+            result = dict(zip(columns, cursor.fetchone()))
+            return result
+        except Exception as ex:
+            raise Exception(ex)
+        finally:
+            cursor.close()
+
+    @staticmethod
+    def get_asistentes_laboratorio(db, laboratorio_id):
+        """Obtener los asistentes asignados a un laboratorio"""
+        try:
+            cursor = db.connection.cursor()
+            sql = """
+                SELECT a.id, a.fullname
+                FROM Asistentes a
+                JOIN AsignacionesAsistente aa ON a.id = aa.asistente_id
+                WHERE aa.laboratorio_id = %s
+            """
+            cursor.execute(sql, (laboratorio_id,))
+            return [(row[0], row[1]) for row in cursor.fetchall()]
+        except Exception as ex:
+            raise Exception(ex)
+        finally:
+            cursor.close()
+
+    @staticmethod
+    def registrar_mantenimiento(db, programacion_id, fecha_realizado, realizado_por, observaciones, user_id):
+        try:
+            cursor = db.connection.cursor()
+            
+            # Actualizar el registro de mantenimiento
+            sql = """
+                UPDATE RegistroMantenimiento
+                SET estado = 'REALIZADO', fecha_realizado = %s, realizado_por = %s, observaciones = %s
+                WHERE programacion_id = %s
+            """
+            cursor.execute(sql, (fecha_realizado, realizado_por, observaciones, programacion_id))
+            
+            db.connection.commit()
+            return True
+        except Exception as ex:
+            db.connection.rollback()
+            raise Exception(ex)
+        finally:
+            cursor.close()
+
+    @staticmethod
+    def get_programacion_details(db, programacion_id, user_id, user_rol):
+        """Obtener los detalles completos de una programación de mantenimiento"""
+        try:
+            cursor = db.connection.cursor()
+            
+            if user_rol == 1:  # Administrador
+                sql = """
+                    SELECT 
+                        pm.id,
+                        e.id AS equipo_id,
+                        e.nombre AS equipo_nombre,
+                        e.codigo AS equipo_codigo,
+                        e.marca AS equipo_marca,
+                        e.serie AS equipo_serie,
+                        e.modelo AS equipo_modelo,
+                        l.id AS laboratorio_id,
+                        l.nombre AS laboratorio_nombre,
+                        c.nombre AS carrera_nombre,
+                        tm.nombre AS tipo_mantenimiento,
+                        pm.anio,
+                        pm.mes,
+                        rm.estado,
+                        rm.fecha_realizado,
+                        rm.observaciones,
+                        a.fullname AS realizado_por
+                    FROM ProgramacionMantenimiento pm
+                    JOIN Equipos e ON pm.equipo_id = e.id
+                    JOIN Laboratorios l ON e.laboratorio_id = l.id
+                    JOIN Carreras c ON l.carrera_id = c.id
+                    JOIN TiposMantenimiento tm ON pm.tipo_mantenimiento_id = tm.id
+                    LEFT JOIN RegistroMantenimiento rm ON pm.id = rm.programacion_id
+                    LEFT JOIN Asistentes a ON rm.realizado_por = a.id
+                    WHERE pm.id = %s
+                """
+                cursor.execute(sql, (programacion_id,))
+            else:  # Asistente
+                sql = """
+                    SELECT 
+                        pm.id,
+                        e.id AS equipo_id,
+                        e.nombre AS equipo_nombre,
+                        e.codigo AS equipo_codigo,
+                        e.marca AS equipo_marca,
+                        e.serie AS equipo_serie,
+                        e.modelo AS equipo_modelo,
+                        l.id AS laboratorio_id,
+                        l.nombre AS laboratorio_nombre,
+                        c.nombre AS carrera_nombre,
+                        tm.nombre AS tipo_mantenimiento,
+                        pm.anio,
+                        pm.mes,
+                        rm.estado,
+                        rm.fecha_realizado,
+                        a.fullname AS realizado_por
+                    FROM ProgramacionMantenimiento pm
+                    JOIN Equipos e ON pm.equipo_id = e.id
+                    JOIN Laboratorios l ON e.laboratorio_id = l.id
+                    JOIN Carreras c ON l.carrera_id = c.id
+                    JOIN TiposMantenimiento tm ON pm.tipo_mantenimiento_id = tm.id
+                    LEFT JOIN RegistroMantenimiento rm ON pm.id = rm.programacion_id
+                    LEFT JOIN Asistentes a ON rm.realizado_por = a.id
+                    JOIN AsignacionesAsistente aa ON l.id = aa.laboratorio_id
+                    WHERE pm.id = %s AND aa.asistente_id = %s
+                """
+                cursor.execute(sql, (programacion_id, user_id))
+            
+            # Obtener los nombres de las columnas
+            columns = [desc[0] for desc in cursor.description]
+            # Convertir los resultados en un diccionario
+            result = dict(zip(columns, cursor.fetchone()))
+            return result
+        except Exception as ex:
             raise Exception(ex)
         finally:
             cursor.close()

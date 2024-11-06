@@ -25,6 +25,21 @@
 
 <div class="card">
     <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar por equipo o tipo...">
+            </div>
+            <div class="col-md-4">
+                <select id="estadoFilter" class="form-select">
+                    <option value="">Todos los estados</option>
+                    <option value="PROGRAMADO">Programado</option>
+                    <option value="REALIZADO">Realizado</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button onclick="clearSearch()" class="btn btn-secondary">Limpiar búsqueda</button>
+            </div>
+        </div>
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
@@ -42,7 +57,7 @@
                 </thead>
                 <tbody>
                     {% for programacion in programaciones %}
-                        <tr>
+                        <tr data-estado="{{ programacion.estado }}">
                             <td>{{ programacion.id }}</td>
                             <td>{{ programacion.equipo_nombre }}</td>
                             <td>{{ programacion.tipo_mantenimiento }}</td>
@@ -57,14 +72,21 @@
                             <td>{{ programacion.realizado_por or 'N/A' }}</td>
                             <td>
                                 {% if programacion.estado == 'PROGRAMADO' %}
-                                    <a href="#" 
-                                       class="btn btn-sm btn-outline-success">Registrar</a>
+                                    <a href="{{ url_for('registrar_mantenimiento', programacion_id=programacion.id) }}" 
+                                    class="btn btn-sm btn-outline-success" role="button">Registrar</a>
+                                {% else %}
+                                    <a href="{{ url_for('descargar_reporte_mantenimiento', programacion_id=programacion.id) }}" 
+                                    class="btn btn-sm btn-outline-success" role="button" >Descargar</a>
                                 {% endif %}
                                 <a href="#" class="btn btn-sm btn-outline-primary">Editar</a>
-                                <a href="#" class="btn btn-sm btn-outline-danger" 
-                                   onclick="return confirm('¿Estás seguro de que quieres eliminar esta programación de mantenimiento?');">
-                                    Eliminar
-                                </a>
+                                {% if current_user.rol_id == 1 %}
+                                    <div class="mb-3">
+                                        <a href="{{ url_for('eliminar_mantenimiento', programacion_id=programacion.id) }}" class="btn btn-sm btn-outline-danger" 
+                                        onclick="return confirm('¿Estás seguro de que quieres eliminar esta programación de mantenimiento?');">
+                                            Eliminar
+                                        </a>
+                                    </div>
+                                {% endif %}
                             </td>
                         </tr>
                     {% endfor %}
@@ -73,4 +95,41 @@
         </div>
     </div>
 </div>
+
+<script>
+function filterTable() {
+    var input, filter, table, tr, td, i, txtValue;
+    input = document.getElementById("searchInput");
+    filter = input.value.toUpperCase();
+    estadoFilter = document.getElementById("estadoFilter").value.toUpperCase();
+    table = document.querySelector(".table");
+    tr = table.getElementsByTagName("tr");
+
+    for (i = 1; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td");
+        var showRow = false;
+        var matchesEstado = estadoFilter === "" || tr[i].getAttribute("data-estado").toUpperCase() === estadoFilter;
+        
+        for (var j = 0; j < td.length; j++) {
+            if (td[j]) {
+                txtValue = td[j].textContent || td[j].innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1 && matchesEstado) {
+                    showRow = true;
+                    break;
+                }
+            }
+        }
+        tr[i].style.display = showRow ? "" : "none";
+    }
+}
+
+function clearSearch() {
+    document.getElementById("searchInput").value = "";
+    document.getElementById("estadoFilter").value = "";
+    filterTable();
+}
+
+document.getElementById("searchInput").addEventListener("keyup", filterTable);
+document.getElementById("estadoFilter").addEventListener("change", filterTable);
+</script>
 {% endblock %}
