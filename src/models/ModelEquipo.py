@@ -215,3 +215,19 @@ class ModelEquipo:
             raise Exception(ex)
         finally:
             cursor.close()
+
+    @classmethod
+    def get_total_equipos(cls,db):
+        """
+        Obtener el total de equipos
+        """
+        try:
+            cursor = db.connection.cursor()
+            cursor.execute("SELECT COUNT(*) FROM Equipos")
+            total = cursor.fetchone()[0]
+            return total
+        except Exception as ex:
+            print(f"Error en get_total_equipos: {ex}")
+            return 0
+        finally:
+            cursor.close()

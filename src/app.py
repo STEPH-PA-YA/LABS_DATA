@@ -123,7 +123,24 @@ def logout():
 @app.route('/home')
 @login_required
 def home():
-    return render_template('home.html')
+    # Obtener total de laboratorios
+    total_laboratorios = ModelLaboratorio.get_total_laboratorios(db)
+    
+    # Obtener total de equipos disponibles
+    total_equipos = ModelEquipo.get_total_equipos(db)
+    
+    # Obtener mantenimientos programados
+    mantenimientos_programados = ModelMantenimiento.get_total_mantenimientos_programados(db)
+    
+    # Actividad reciente (lo que ya tenías)
+    mantenimientos_realizados = ModelMantenimiento.get_total_mantenimientos_realizados(db)
+    
+    return render_template('home.html', 
+        total_laboratorios=total_laboratorios,
+        total_equipos=total_equipos,
+        mantenimientos_programados=mantenimientos_programados,
+        mantenimientos_realizados=mantenimientos_realizados
+    )
 #LABORATORIOS
 
 @app.route('/laboratorios')

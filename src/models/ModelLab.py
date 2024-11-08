@@ -113,3 +113,20 @@ class ModelLaboratorio:
             raise Exception(ex)
         finally:
             cursor.close()
+
+
+    @classmethod
+    def get_total_laboratorios(cls,db):
+        """
+        Obtener el total de laboratorios
+        """
+        try:
+            cursor = db.connection.cursor()
+            cursor.execute("SELECT COUNT(*) FROM Laboratorios")
+            total = cursor.fetchone()[0]
+            return total
+        except Exception as ex:
+            print(f"Error en get_total_laboratorios: {ex}")
+            return 0
+        finally:
+            cursor.close()

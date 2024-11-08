@@ -337,3 +337,43 @@ class ModelMantenimiento:
             raise Exception(ex)
         finally:
             cursor.close()
+
+    # Problematic code
+    @classmethod
+    def get_total_mantenimientos_programados(cls,db):
+        """
+        Obtener el total de mantenimientos programados
+        """
+        try:
+            cursor = db.connection.cursor()
+            cursor.execute("""
+                SELECT COUNT(*) 
+                FROM RegistroMantenimiento 
+                WHERE estado = 'PROGRAMADO'
+            """)
+            total = cursor.fetchone()[0]
+            return total
+        except Exception as ex:
+            print(f"Error en get_total_mantenimientos_programados: {ex}")
+            return 0
+        finally:
+            cursor.close()
+    @staticmethod
+    def get_total_mantenimientos_realizados(db):
+        """
+        Obtener el total de mantenimientos realizados
+        """
+        try:
+            cursor = db.connection.cursor()
+            cursor.execute("""
+                SELECT COUNT(*) 
+                FROM RegistroMantenimiento 
+                WHERE estado = 'REALIZADO'
+            """)
+            total = cursor.fetchone()[0]
+            return total
+        except Exception as ex:
+            print(f"Error en get_total_mantenimientos_realizados: {ex}")
+            return 0
+        finally:
+            cursor.close()
